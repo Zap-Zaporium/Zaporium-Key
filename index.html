@@ -32,12 +32,15 @@
   <div class="box" id="page2" style="display:none">
     <div class="title">Zaporium Key System</div>
     <div class="desc" style="margin:20px 0">
-      Complete 1 offer to continue<br>
-      This supports the creators.
+      Completed 0 of 1<br>
+      Click continue, pop-ups/ads may show — they directly support the creators.
     </div>
     <button class="continue" onclick="startVerification()">Continue</button>
     <button class="watch" onclick="window.open('https://youtu.be/dQw4w9WgXcQ','_blank')">Watch tutorial</button>
     <button class="shop" onclick="window.open('https://lootlabs.gg','_blank')">Visit shop</button>
+    <div class="footer">
+      <a href="#">Report</a> • <a href="#">Terms of Service</a> • <a href="#">Privacy Policy</a>
+    </div>
   </div>
 
   <div class="box" id="page3" style="display:none">
@@ -45,12 +48,6 @@
     <div class="desc">Copy this key and paste it in-executor.<br>Expires in 1 hour.</div>
     <div style="background:#1a1a2e;padding:15px;margin:20px 0;border-radius:10px;font-size:18px;letter-spacing:2px;word-break:break-all;" id="keyDisplay">Generating...</div>
     <button class="continue" onclick="copyKey()">Copy Key</button>
-    <div class="footer"><small>Key used? Wait 1 hour or complete offer again.</small></div>
-  </div>
-
-  <div class="box" id="outOfKeys" style="display:none">
-    <div class="title">No Keys Available</div>
-    <div class="desc">All 100 keys have been claimed.<br>Please check back later.</div>
   </div>
 
   <script>
@@ -71,41 +68,39 @@
       }
     }, 1000);
 
-    const BACKEND = "https://Zaporium-Key.infinityfree.me";
-    const SERVICE = "zaporium";
+    // YOUR REAL BACKEND (already set to your domain)
+    const BACKEND_URL = "https://Zaporium-Key.infinityfree.me";
+    const SERVICE_NAME = "zaporium";
 
     function startVerification() {
       const callback = encodeURIComponent(location.href);
-      window.location.href = `${BACKEND}/verify.php?callback=${callback}`;
+      window.location.href = `${BACKEND_URL}/verify.php?service=${SERVICE_NAME}&callback=${callback}`;
     }
 
-    // Check if verified
-    const urlParams = new URLSearchParams(location.search);
-    if (urlParams.get("claim") === "success") {
+    // Auto-show key if user came back verified
+    const params = new URLSearchParams(location.search);
+    if (params.get("verified") === "true" && params.get("service") === SERVICE_NAME) {
       document.getElementById("page2").style.display = "none";
-      claimKey();
+      document.getElementById("page3").style.display = "block";
+      generateKey();
     }
 
     let currentKey = "";
 
-    function claimKey() {
-      fetch(`${BACKEND}/claim.php`)
-        .then(r => r.json())
-        .then(data => {
-          if (data.status === "success") {
-            currentKey = data.key;
-            document.getElementById("keyDisplay").textContent = currentKey;
-            document.getElementById("page3").style.display = "block";
-          } else {
-            document.getElementById("page2").style.display = "none";
-            document.getElementById("outOfKeys").style.display = "block";
-          }
-        });
+    function generateKey() {
+      currentKey = "ZAP-" + Math.random().toString(36).substr(2, 12).toUpperCase();
+      document.getElementById("keyDisplay").textContent = currentKey;
+
+      fetch(`${BACKEND_URL}/savekey.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: currentKey, service: SERVICE_NAME })
+      });
     }
 
     function copyKey() {
       navigator.clipboard.writeText(currentKey);
-      alert("Key copied! Valid for 1 hour.");
+      alert("Key copied to clipboard!");
     }
   </script>
 </body>
