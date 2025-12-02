@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Zaporium Key System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {margin:0;background:#0f0f1a;font-family:-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;}
+    .box {background:rgba(20,20,35,0.95);padding:30px;border-radius:16px;width:90%;max-width:380px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.6);}
+    .title {font-size:24px;font-weight:600;margin-bottom:8px;}
+    .desc {font-size:14px;opacity:0.8;margin-bottom:25px;}
+    button {width:100%;padding:14px;margin:10px 0;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:0.2s;}
+    .continue {background:#fff;color:#000;}
+    .continue:hover {background:#eee;}
+    .continue:disabled {background:#333;color:#666;cursor:not-allowed;opacity:0.6;}
+    .watch {background:#ff2d55;color:#fff;}
+    .shop {background:#007aff;color:#fff;}
+    .footer {margin-top:30px;font-size:12px;opacity:0.6;}
+    .footer a {color:#888;text-decoration:none;}
+  </style>
+</head>
+<body>
+  <div class="box" id="page1">
+    <div class="title">Zaporium Key System</div>
+    <div class="desc">Please wait and click continue to get whitelisted.</div>
+    <button id="firstContinue" class="continue" disabled>Continue (5)</button>
+    <div class="footer">
+      <a href="#">Report</a> • <a href="#">Terms of Service</a> • <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+
+  <div class="box" id="page2" style="display:none">
+    <div class="title">Zaporium Key System</div>
+    <div class="desc" style="margin:20px 0">
+      Completed 0 of 1<br>
+      Click continue, pop-ups/ads may show — they directly support the creators.
+    </div>
+    <button class="continue" onclick="startLootLabs()">Continue</button>
+    <button class="watch" onclick="window.open('https://youtu.be/dQw4w9WgXcQ','_blank')">Watch tutorial</button>
+    <button class="shop" onclick="window.open('https://lootlabs.gg','_blank')">Visit shop</button>
+    <div class="footer">
+      <a href="#">Report</a> • <a href="#">Terms of Service</a> • <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+
+  <div class="box" id="page3" style="display:none">
+    <div class="title">Your Zaporium Key (1 Hour)</div>
+    <div class="desc">Copy this key and paste it in-executor.<br>Expires in 1 hour.</div>
+    <div style="background:#1a1a2e;padding:15px;margin:20px 0;border-radius:10px;font-size:18px;letter-spacing:2px;word-break:break-all;" id="keyDisplay">Generating...</div>
+    <button class="continue" onclick="copyKey()">Copy Key</button>
+  </div>
+
+  <script>
+    // === 5-second countdown on first page ===
+    let timeLeft = 5;
+    const btn = document.getElementById("firstContinue");
+    const timer = setInterval(() => {
+      timeLeft--;
+      btn.innerText = `Continue (${timeLeft})`;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        btn.innerText = "Continue";
+        btn.disabled = false;
+        btn.onclick = () => {
+          document.getElementById("page1").style.display = "none";
+          document.getElementById("page2").style.display = "block";
+        };
+      }
+    }, 1000);
+
+    // === SECURE LootLabs checkpoint (real bypass protection) ===
+    function startLootLabs() {
+      const lootlabsLink = "https://lootlabs.gg/verify?service=YOUR_SERVICE_ID"; // ← PUT YOUR REAL LOOTLABS LINK HERE
+      const redirectBack = encodeURIComponent(window.location.href);
+
+      // This is the official LootLabs verification flow (cannot be bypassed)
+      window.location.href = `${lootlabsLink}&callback=${redirectBack}&ref=12345`;
+    }
+
+    // When user comes back after completing offers
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === 'true') {
+      document.getElementById("page2").style.display = "none";
+      document.getElementById("page3").style.display = "block";
+      generateUniqueKey();
+    }
+
+    function generateUniqueKey() {
+      const key = "ZAP-" + Math.random().toString(36).substr(2, 12).toUpperCase();
+      document.getElementById("keyDisplay").innerText = key;
+
+      // Save key server-side (1 hour expiry)
+      fetch("https://yourdomain.com/savekey.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: key, expires: Date.now() + 3600000 })
+      });
+    }
+
+    function copyKey() {
+      navigator.clipboard.writeText(document.getElementById("keyDisplay").innerText);
+      alert("Key copied to clipboard!");
+    }
+  </script>
+</body>
+</html>
