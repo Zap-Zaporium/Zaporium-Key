@@ -35,7 +35,7 @@
       Completed 0 of 1<br>
       Click continue, pop-ups/ads may show — they directly support the creators.
     </div>
-    <button class="continue" onclick="startLootLabs()">Continue</button>
+    <button class="continue" onclick="startVerification()">Continue</button>
     <button class="watch" onclick="window.open('https://youtu.be/dQw4w9WgXcQ','_blank')">Watch tutorial</button>
     <button class="shop" onclick="window.open('https://lootlabs.gg','_blank')">Visit shop</button>
     <div class="footer">
@@ -51,7 +51,7 @@
   </div>
 
   <script>
-    // === 5-second countdown on first page ===
+    // 5-second countdown
     let timeLeft = 5;
     const btn = document.getElementById("firstContinue");
     const timer = setInterval(() => {
@@ -68,37 +68,38 @@
       }
     }, 1000);
 
-    // === SECURE LootLabs checkpoint (real bypass protection) ===
-    function startLootLabs() {
-      const lootlabsLink = "https://lootlabs.gg/verify?service=YOUR_SERVICE_ID"; // ← PUT YOUR REAL LOOTLABS LINK HERE
-      const redirectBack = encodeURIComponent(window.location.href);
+    // YOUR INFINITYFREE DOMAIN (CHANGE THIS IF YOU USE A DIFFERENT ONE)
+    const BACKEND_URL = "https://zaporiumkeys.infinityfreeapp.com";
+    const SERVICE_NAME = "zaporium";
 
-      // This is the official LootLabs verification flow (cannot be bypassed)
-      window.location.href = `${lootlabsLink}&callback=${redirectBack}&ref=12345`;
+    function startVerification() {
+      const callback = encodeURIComponent(location.href);
+      window.location.href = `${BACKEND_URL}/verify.php?service=${SERVICE_NAME}&callback=${callback}`;
     }
 
-    // When user comes back after completing offers
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('verified') === 'true') {
+    // Auto-show key if user came back verified
+    const params = new URLSearchParams(location.search);
+    if (params.get("verified") === "true" && params.get("service") === SERVICE_NAME) {
       document.getElementById("page2").style.display = "none";
       document.getElementById("page3").style.display = "block";
-      generateUniqueKey();
+      generateKey();
     }
 
-    function generateUniqueKey() {
-      const key = "ZAP-" + Math.random().toString(36).substr(2, 12).toUpperCase();
-      document.getElementById("keyDisplay").innerText = key;
+    let currentKey = "";
 
-      // Save key server-side (1 hour expiry)
-      fetch("https://yourdomain.com/savekey.php", {
+    function generateKey() {
+      currentKey = "ZAP-" + Math.random().toString(36).substr(2, 12).toUpperCase();
+      document.getElementById("keyDisplay").textContent = currentKey;
+
+      fetch(`${BACKEND_URL}/savekey.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: key, expires: Date.now() + 3600000 })
+        body: JSON.stringify({ key: currentKey, service: SERVICE_NAME })
       });
     }
 
     function copyKey() {
-      navigator.clipboard.writeText(document.getElementById("keyDisplay").innerText);
+      navigator.clipboard.writeText(currentKey);
       alert("Key copied to clipboard!");
     }
   </script>
